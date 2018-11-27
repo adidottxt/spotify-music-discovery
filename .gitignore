@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 config.py
 .cache-
+.ipynb_checkpoints

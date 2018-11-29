@@ -5,3 +5,4 @@ __pycache__/
 config.py
 .cache*
 .ipynb_checkpoints
+*.csv

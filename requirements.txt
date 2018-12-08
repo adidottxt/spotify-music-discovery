@@ -1,3 +1,4 @@
 spotipy==2.4.4
 jupyter==1.0.0
 pandas==0.23.4
+scikit-learn==0.20.1

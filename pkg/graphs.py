@@ -5,20 +5,17 @@ graphs
 import matplotlib.pyplot as plt  # pylint: disable=import-error
 import matplotlib.ticker as mtick  # pylint: disable=import-error
 
-from constants import NUM_CLUSTERS
+from .constants import NUM_CLUSTERS
 
-
-def get_new_results(algorithm, result_list, label_list):
+def get_new_results(algorithm, results, labels):
     '''
     get new results
     '''
     new_results = {}
-    for i in enumerate(result_list):
-        new_results[label_list[i]] = {}
-        for k in result_list[i][algorithm]:
-            new_results[label_list[i]][k] = result_list[i][algorithm][k]
+    for i in range(len(results)):
+        new_results[labels[i]] = {}
+        for k in results[i][algorithm]: results[labels[i]][k] = results[i][algorithm][k]
     return new_results
-
 
 def get_plottable_results(data):
     '''

@@ -2,7 +2,7 @@
 run
 '''
 
-import sklearn #pylint: disable=unused-import
+import sklearn  # pylint: disable=unused-import
 from sklearn.feature_extraction import DictVectorizer
 
 from .pickclassifier import Classifier
@@ -16,6 +16,7 @@ def get_default_vectorizer(song_data_x):
     '''
     vect = DictVectorizer(sort=True)
     return vect.fit(song_data_x)
+
 
 def get_experiment_split(default_data, clustered_data, p_value=0.2):
     '''
@@ -148,7 +149,7 @@ def run_benchmark(
         default_song_data,
         train_data,
         validation_data,
-        discard=None): #pylint: disable=unused-argument
+        discard=None):  # pylint: disable=unused-argument
     '''
     Trains :alg: on song_data (with or without filtering features), splits into train/validation,
     and returns accuracy on validation data.
@@ -160,3 +161,57 @@ def run_benchmark(
     clf.fit()
 
     return clf.validate(validation_data)
+
+
+def run_benchmarks_suite(
+        default_song_data,
+        default_training_data,
+        default_validation_data,
+        clustered_training_data,
+        clustered_validation_data):
+    '''
+    run all benchmarks, write to file
+    '''
+    with open('plots/' + str(NUM_CLUSTERS) + '_benchmarks.txt', 'w') as file:
+        svc_bench_unclustered = run_benchmark(
+            'svc',
+            default_song_data,
+            default_training_data,
+            default_validation_data)
+        svc_bench_clustered = run_benchmark(
+            'svc',
+            default_song_data,
+            clustered_training_data,
+            clustered_validation_data)
+        result = 'svc accs:\t' + \
+            str(svc_bench_unclustered) + '\t' + str(svc_bench_clustered)
+        file.write(result)
+        print(result)
+        lsvc_bench_unclustered = run_benchmark(
+            'lsvc',
+            default_song_data,
+            default_training_data,
+            default_validation_data)
+        lsvc_bench_clustered = run_benchmark(
+            'lsvc',
+            default_song_data,
+            clustered_training_data,
+            clustered_validation_data)
+        result = 'lsvc accs:\t' + \
+            str(lsvc_bench_unclustered) + '\t' + str(lsvc_bench_clustered)
+        file.write(result)
+        print(result)
+        sgd_bench_unclustered = run_benchmark(
+            'sgd',
+            default_song_data,
+            default_training_data,
+            default_validation_data)
+        sgd_bench_clustered = run_benchmark(
+            'sgd',
+            default_song_data,
+            clustered_training_data,
+            clustered_validation_data)
+        result = 'sgd accs:\t' + \
+            str(sgd_bench_unclustered) + '\t' + str(sgd_bench_clustered)
+        file.write(result)
+        print(result)

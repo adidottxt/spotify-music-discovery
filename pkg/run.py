@@ -5,7 +5,7 @@ run
 import sklearn  # pylint: disable=unused-import
 from sklearn.feature_extraction import DictVectorizer
 
-from .pickclassifier import Classifier
+from .spotifyclassifier import Classifier
 from .wrangling import split_data, get_x
 from .constants import ONLINE_ALGS, AL_STRATS, NUM_CLUSTERS
 

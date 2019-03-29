@@ -14,7 +14,8 @@ def get_new_results(algorithm, results, labels):
     new_results = {}
     for i in range(len(results)):
         new_results[labels[i]] = {}
-        for k in results[i][algorithm]: results[labels[i]][k] = results[i][algorithm][k]
+        for k in results[i][algorithm]:
+            new_results[labels[i]][k] = results[i][algorithm][k]
     return new_results
 
 def get_plottable_results(data):

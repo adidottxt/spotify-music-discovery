@@ -4,12 +4,16 @@ data wrangling
 
 from random import sample as rand_sample
 from copy import deepcopy
+import csv
 
 import numpy as np
 import pandas as pd  # pylint: disable=import-error
+from tqdm import tqdm_notebook
 
 from sklearn.cluster import KMeans
 from maps import FrozenMap  # pylint: disable=import-error
+
+from .constants import FEATURE_LIST
 
 
 def read_data(file):  # pylint: disable=too-many-statements
@@ -31,82 +35,45 @@ def read_data(file):  # pylint: disable=too-many-statements
 
     with open(file, 'r') as file_data:
 
-        for song in file_data:
+        reader = csv.DictReader(file_data)
 
-            line = song.split(',')
+        for song in tqdm_notebook(reader, desc='Reading data from .csv...'):
 
-            # ignore first line + ensure that label exists
-            if line[0] != 'label' and line[0]:
-                label = int(line[0])
-                metadata, data = {}, {}
-                genres = []
-                track_id = line[1]
+            metadata, data = {}, {}
+            genres = []
+            track_id = song['track_id']
 
-                features = {}
-                features['artist_popularity'] = line[4]
-                features['artist_followers'] = line[5]
+            features = {}
 
-                metadata['artist_id'] = line[2]
-                metadata['artist_name'] = line[3]
 
-                # check if genre field has multiple genres or just one
-                if line[6]:
-                    if '"' in line[6]:
-                        genres.append(line[6][1:])
-                    else:
-                        genres.append(line[6])
+            metadata['artist_id'] = song['artist_id']
+            metadata['artist_name'] = song['artist_name']
 
-                count = 0
-
-                # if '"' present or next value is a string only containing alphabets,
-                # then add to genres list. set count to i+1 when you reach last
-                # genre
-                for i in range(7, len(line)):
-                    if '"' in line[i]:
-                        genres.append(line[i][:-1])
-                        count = i + 1
-                        break
-                    if line[i].isalpha():
-                        genres.append(line[i])
-
-                # single or no genres, get all other features
-                if count == 0:
-                    features['instrumentalness'] = float(line[7])
-                    features['duration_ms'] = float(line[8])
-                    features['time_signature'] = float(line[9])
-                    features['acousticness'] = float(line[10])
-                    features['speechiness'] = float(line[11])
-                    features['energy'] = float(line[12])
-                    features['loudness'] = float(line[13])
-                    features['tempo'] = float(line[14])
-                    features['key'] = float(line[15])
-                    features['valence'] = float(line[16])
-                    features['danceability'] = float(line[17])
-                    features['liveness'] = float(line[18][:-1])
-
-                # multiple genres, get all other features using count
+            # check if genre field has multiple genres or just one
+            if song['artist_genres']:
+                if '"' in song['artist_genres']:
+                    all_genres = song['artist_genres'].split(',')
+                    for genre in all_genres:
+                        if genre[0] == '"':
+                            genres.append(genre[1:])
+                        elif genre[-1] == '"':
+                            genres.append(genre[:-1])
+                        else:
+                            genres.append(genre)
                 else:
-                    features['instrumentalness'] = float(line[count])
-                    features['duration_ms'] = float(line[count + 1])
-                    features['time_signature'] = float(line[count + 2])
-                    features['acousticness'] = float(line[count + 3])
-                    features['speechiness'] = float(line[count + 4])
-                    features['energy'] = float(line[count + 5])
-                    features['loudness'] = float(line[count + 6])
-                    features['tempo'] = float(line[count + 7])
-                    features['key'] = float(line[count + 8])
-                    features['valence'] = float(line[count + 9])
-                    features['danceability'] = float(line[count + 10])
-                    features['liveness'] = float(line[count + 11][:-1])
+                    genres.append(song['artist_genres'])
 
-                # add metadata, features, genres, and label to data
-                data['metadata'] = metadata
-                data['features'] = features
-                data['genres'] = genres
-                data['label'] = label
+            for feature in FEATURE_LIST:
+                features[feature] = float(song[feature])
 
-                # add data to songs by track_id
-                songs[track_id] = data
+            # add metadata, features, genres, and label to data
+            data['metadata'] = metadata
+            data['features'] = features
+            data['genres'] = genres
+            data['label'] = float(song['label'])
+
+            # add data to songs by track_id
+            songs[track_id] = data
 
     return songs
 
@@ -141,38 +108,28 @@ def read_genres(file):
 
     with open(file, 'r') as file_data:
 
-        for song in file_data:
+        reader = csv.DictReader(file_data)
+        genres = []
 
-            line = song.split(',')
+        for song in tqdm_notebook(reader, desc='Reading data from .csv...'):
 
-            if line[0]:
-
-                genres = []
-
-                # check if genres field is empty or contains one/multiple
-                # genres
-                if line[6]:
-                    if '"' in line[6]:
-                        genres.append(line[6][1:])
-                    else:
-                        genres.append(line[6])
-
-                count = 0  # pylint: disable=unused-variable
-
-                # account for multiple genres
-                for i in range(7, len(line)):
-                    if '"' in line[i]:
-                        genres.append(line[i][:-1])
-                        count = i + 1
-                        break
-                    if line[i].isalpha():
-                        genres.append(line[i])
+            if song['artist_genres']:
+                if '"' in song['artist_genres']:
+                    all_genres = song['artist_genres'].split(',')
+                    for genre in all_genres:
+                        if genre[0] == '"':
+                            genres.append(genre[1:])
+                        elif genre[-1] == '"':
+                            genres.append(genre[:-1])
+                        else:
+                            genres.append(genre)
+                else:
+                    genres.append(song['artist_genres'])
 
                 # for genres in the genres list, ensure that the genre is not a
                 # float, create unique genre_id
                 for genre in genres:
-                    if (genre not in genre_mapping) and (
-                            '"' not in genre) and (not is_float(genre)):
+                    if genre not in genre_mapping:
                         genre_mapping[genre] = genre_id
                         genre_id += 1
 

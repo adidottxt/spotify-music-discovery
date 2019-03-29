@@ -7,7 +7,10 @@ import spotipy
 import spotipy.util as util
 import spotipy.oauth2 as oauth2
 from spotipy.oauth2 import SpotifyClientCredentials
+from tqdm import tqdm_notebook, trange
 import pandas as pd
+
+from .constants import FINAL_COLUMNS, TRACK_FEATURES
 
 
 def login_to_spotify(username, client_id, client_secret):
@@ -44,7 +47,9 @@ def get_playlist_data(spotipy_object, username, playlists, playlist_name):
     and downloads all song information for the given playlist name.
     '''
 
-    for playlist in playlists['items']:
+    for playlist in tqdm_notebook(
+            playlists['items'],
+            desc='Finding playlist "{}"...'.format(playlist_name)):
         if playlist['name'] == playlist_name:
             playlist_id = playlist['id']
 
@@ -65,25 +70,29 @@ def get_playlist_data(spotipy_object, username, playlists, playlist_name):
     return playlist_songs
 
 
-def get_dataframe(spotipy_object, playlist_data):
+def get_dataframe(spotipy_object, playlist_data, label):
     '''
     get dataframe from data
     '''
     track_ids = []
 
-    for track in playlist_data:
+    for track in tqdm_notebook(playlist_data, desc='Saving playlist data...'):
         if track['track']['id']:
             track_ids.append(track['track']['id'])
 
     track_features_list = []
 
-    for i in range(0, len(track_ids), 50):
+    for i in tqdm_notebook(range(0, len(track_ids), 50),
+                           desc='Downloading audio features...'):
         track_features_list.extend(
             spotipy_object.audio_features(tracks=track_ids[i:i + 50]))
 
     track_features = {}
 
-    for i in range(len(track_ids)):
+    for i in tqdm_notebook(
+            range(
+                len(track_ids)),
+            desc='Parsing track features...'):
         track_features[track_ids[i]] = track_features_list[i]
 
     artist_ids = {}
@@ -92,67 +101,25 @@ def get_dataframe(spotipy_object, playlist_data):
     artist_popularity = {}
     artist_followers = {}
 
-    print('artist features done')
+    for record in tqdm_notebook(track_ids, desc="Parsing artist data..."):
 
-    for i in range(len(track_ids)):
-        print(i, ' of ', len(track_ids), ' tracks done')
-
-        artist_id = spotipy_object.track(track_ids[i])['artists'][0]['id']
+        artist_id = spotipy_object.track(record)['artists'][0]['id']
         artist_info = spotipy_object.artist(artist_id)
-        artist_ids[track_ids[i]] = artist_id
+        artist_ids[record] = artist_id
 
         artist_genres[artist_id] = ','.join(artist_info['genres'])
         artist_names[artist_id] = artist_info['name']
         artist_popularity[artist_id] = artist_info['popularity']
         artist_followers[artist_id] = artist_info['followers']['total']
 
-    print('adding artist info')
-
     track_features_df = pd.DataFrame.from_dict(
         track_features,
-        orient='index'
-    ).reset_index().rename(columns={'id': 'track_id'}).drop(columns=['index'])
-    [
-        [
-            'track_id',
-            'instrumentalness',
-            'energy',
-            'tempo',
-            'time_signature',
-            'valence',
-            'duration_ms',
-            'key',
-            'liveness',
-            'speechiness',
-            'danceability',
-            'loudness',
-        ]
-    ]
+        orient='index').reset_index().rename(
+        columns={
+            'id': 'track_id'}).drop(
+                columns=['index'])[TRACK_FEATURES]
 
-    print('track features done')
-
-    final_df = pd.DataFrame(
-        columns=[
-            'track_id',
-            'artist_id',
-            'artist_name',
-            'artist_popularity',
-            'artist_followers',
-            'artist_genres',
-            'instrumentalness',
-            'duration_ms',
-            'time_signature',
-            'acousticness',
-            'speechiness',
-            'energy',
-            'loudness',
-            'tempo',
-            'key',
-            'valence',
-            'danceability',
-            'liveness',
-        ]
-    )
+    final_df = pd.DataFrame(columns=FINAL_COLUMNS)
 
     track_energy = track_features_df[['track_id', 'energy']].set_index(
         'track_id').to_dict()['energy']
@@ -179,7 +146,10 @@ def get_dataframe(spotipy_object, playlist_data):
     track_acousticness = track_features_df[['track_id', 'acousticness']].set_index(
         'track_id').to_dict()['acousticness']
 
-    for i in range(len(track_ids)):
+    for i in tqdm_notebook(
+            range(
+                len(track_ids)),
+            desc="Building final dataframe..."):
 
         track_id = track_ids[i]
         data = []
@@ -187,6 +157,7 @@ def get_dataframe(spotipy_object, playlist_data):
 
         data.extend(
             (
+                label,
                 track_id,
                 artist_id,
                 artist_names[artist_id],

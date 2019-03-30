@@ -10,7 +10,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from tqdm import tqdm_notebook, trange
 import pandas as pd
 
-from .constants import FINAL_COLUMNS, TRACK_FEATURES
+from .constants import FINAL_COLUMNS, TRACK_FEATURES, LIKE, DISLIKE, NO_LABEL_FINAL_COLUMNS
 
 
 def login_to_spotify(username, client_id, client_secret):
@@ -75,9 +75,10 @@ def get_dataframe(spotipy_object, playlist_data, label):
     get dataframe from data
     '''
     track_ids = []
-
+    track_names = {}
     for track in tqdm_notebook(playlist_data, desc='Saving playlist data...'):
         if track['track']['id']:
+            track_names[track['track']['id']] = track['track']['name']
             track_ids.append(track['track']['id'])
 
     track_features_list = []
@@ -119,7 +120,10 @@ def get_dataframe(spotipy_object, playlist_data, label):
             'id': 'track_id'}).drop(
                 columns=['index'])[TRACK_FEATURES]
 
-    final_df = pd.DataFrame(columns=FINAL_COLUMNS)
+    if label in (LIKE, DISLIKE):
+        final_df = pd.DataFrame(columns=FINAL_COLUMNS)
+    else:
+        final_df = pd.DataFrame(columns=NO_LABEL_FINAL_COLUMNS)
 
     track_energy = track_features_df[['track_id', 'energy']].set_index(
         'track_id').to_dict()['energy']
@@ -152,32 +156,59 @@ def get_dataframe(spotipy_object, playlist_data, label):
             desc="Building final dataframe..."):
 
         track_id = track_ids[i]
+        track_name = track_names[track_id]
         data = []
         artist_id = artist_ids[track_id]
 
-        data.extend(
-            (
-                label,
-                track_id,
-                artist_id,
-                artist_names[artist_id],
-                artist_popularity[artist_id],
-                artist_followers[artist_id],
-                artist_genres[artist_id],
-                track_instrumentalness[track_id],
-                track_duration_ms[track_id],
-                track_time_signature[track_id],
-                track_acousticness[track_id],
-                track_speechiness[track_id],
-                track_energy[track_id],
-                track_loudness[track_id],
-                track_tempo[track_id],
-                track_key[track_id],
-                track_valence[track_id],
-                track_danceability[track_id],
-                track_liveness[track_id],
+        if label in (LIKE, DISLIKE):
+            data.extend(
+                (
+                    label,
+                    track_id,
+                    artist_id,
+                    artist_names[artist_id],
+                    artist_popularity[artist_id],
+                    artist_followers[artist_id],
+                    artist_genres[artist_id],
+                    track_instrumentalness[track_id],
+                    track_duration_ms[track_id],
+                    track_time_signature[track_id],
+                    track_acousticness[track_id],
+                    track_speechiness[track_id],
+                    track_energy[track_id],
+                    track_loudness[track_id],
+                    track_tempo[track_id],
+                    track_key[track_id],
+                    track_valence[track_id],
+                    track_danceability[track_id],
+                    track_liveness[track_id],
+                    track_name
+                )
             )
-        )
+        else:
+            data.extend(
+                (
+                    track_id,
+                    artist_id,
+                    artist_names[artist_id],
+                    artist_popularity[artist_id],
+                    artist_followers[artist_id],
+                    artist_genres[artist_id],
+                    track_instrumentalness[track_id],
+                    track_duration_ms[track_id],
+                    track_time_signature[track_id],
+                    track_acousticness[track_id],
+                    track_speechiness[track_id],
+                    track_energy[track_id],
+                    track_loudness[track_id],
+                    track_tempo[track_id],
+                    track_key[track_id],
+                    track_valence[track_id],
+                    track_danceability[track_id],
+                    track_liveness[track_id],
+                    track_name
+                )
+            )
 
         final_df.loc[i] = data
 

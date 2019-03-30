@@ -238,6 +238,12 @@ class Classifier():  # pylint: disable=too-many-instance-attributes
         '''
         return self.learner.predict(value)[0]
 
+    def predict_all(self, data):
+        '''
+        predict multiple data points using classifier
+        '''
+        return [self.predict(self.transform(data[i])) for i in range(len(data))]
+
     def validate(self, validation_data):
         '''
         Predicts on all instances in validation_data. Returns accuracy.

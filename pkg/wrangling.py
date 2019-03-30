@@ -6,14 +6,14 @@ from random import sample as rand_sample
 from copy import deepcopy
 import csv
 
-import numpy as np
-import pandas as pd  # pylint: disable=import-error
-from tqdm import tqdm_notebook
-
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+import pandas as pd # pylint: disable=import-error
 from maps import FrozenMap  # pylint: disable=import-error
+from tqdm import tqdm_notebook  # pylint: disable=import-error
 
-from .constants import FEATURE_LIST
+from .constants import FLOAT_FEATURE_LIST, SCALABLE_VALUES
 
 
 def read_data(file):  # pylint: disable=too-many-statements
@@ -45,32 +45,28 @@ def read_data(file):  # pylint: disable=too-many-statements
 
             features = {}
 
-
             metadata['artist_id'] = song['artist_id']
             metadata['artist_name'] = song['artist_name']
 
             # check if genre field has multiple genres or just one
             if song['artist_genres']:
-                if '"' in song['artist_genres']:
-                    all_genres = song['artist_genres'].split(',')
-                    for genre in all_genres:
-                        if genre[0] == '"':
-                            genres.append(genre[1:])
-                        elif genre[-1] == '"':
-                            genres.append(genre[:-1])
-                        else:
-                            genres.append(genre)
-                else:
-                    genres.append(song['artist_genres'])
+                all_genres = song['artist_genres'].split(',')
+                for genre in all_genres:
+                    if genre[0] == '"':
+                        genres.append(genre[1:])
+                    elif genre[-1] == '"':
+                        genres.append(genre[:-1])
+                    else:
+                        genres.append(genre)
 
-            for feature in FEATURE_LIST:
+            for feature in FLOAT_FEATURE_LIST:
                 features[feature] = float(song[feature])
 
             # add metadata, features, genres, and label to data
             data['metadata'] = metadata
             data['features'] = features
             data['genres'] = genres
-            data['label'] = float(song['label'])
+            data['label'] = int(song['label'])
 
             # add data to songs by track_id
             songs[track_id] = data
@@ -114,17 +110,14 @@ def read_genres(file):
         for song in tqdm_notebook(reader, desc='Reading data from .csv...'):
 
             if song['artist_genres']:
-                if '"' in song['artist_genres']:
-                    all_genres = song['artist_genres'].split(',')
-                    for genre in all_genres:
-                        if genre[0] == '"':
-                            genres.append(genre[1:])
-                        elif genre[-1] == '"':
-                            genres.append(genre[:-1])
-                        else:
-                            genres.append(genre)
-                else:
-                    genres.append(song['artist_genres'])
+                all_genres = song['artist_genres'].split(',')
+                for genre in all_genres:
+                    if genre[0] == '"':
+                        genres.append(genre[1:])
+                    elif genre[-1] == '"':
+                        genres.append(genre[:-1])
+                    else:
+                        genres.append(genre)
 
                 # for genres in the genres list, ensure that the genre is not a
                 # float, create unique genre_id
@@ -264,6 +257,7 @@ def get_xy(song_data, ids=None):
     return [x['features'] for x in song_data.values()], [x['label']
                                                          for x in song_data.values()]
 
+
 def get_x(song_data, ids=None):
     '''
     get x values from song_data
@@ -271,3 +265,29 @@ def get_x(song_data, ids=None):
     if ids:
         song_data = {k: song_data[k] for k in ids}
     return [x['features'] for x in song_data.values()]
+
+
+def get_features_and_id(song_data):
+    '''
+    get x values + song ID
+    '''
+    features = []
+    song_ids = []
+
+    for song_id, data in song_data.items():
+        features.append(data['features'])
+        song_ids.append(song_id)
+
+    return features, song_ids
+    # return [x['features'] for x in song_data.values()], [key for key in
+    # song_data.keys()]
+
+
+def scale_data(data):
+    '''
+    scale specific data values in dataframe
+    '''
+    new_df = data.copy(deep=True)
+    sclr = MinMaxScaler()
+    new_df[SCALABLE_VALUES] = sclr.fit_transform(new_df[SCALABLE_VALUES])
+    return new_df

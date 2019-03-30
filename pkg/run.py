@@ -97,7 +97,6 @@ def run_active_suite(
                 alg,
                 init_n,
                 strat=strat)
-            print(len(accs))
             print(alg, 'accs w/', strat)
             for i in range(len((accs))):
                 print(int(accs[i] * 10000) / 100, end='\t')
@@ -160,58 +159,69 @@ def run_benchmark(
     clf = Classifier(alg, train_data, default_vectorizer, False)
     clf.fit()
 
-    return clf.validate(validation_data)
+    return clf.validate(validation_data), clf
 
 
-def run_benchmarks_suite(
+def get_highest_benchmark( #pylint: disable=too-many-locals
         default_song_data,
         default_training_data,
         default_validation_data,
         clustered_training_data,
         clustered_validation_data):
     '''
-    run all benchmarks, write to file
+    run all benchmarks, get highest, return classifier
     '''
-    with open('plots/' + str(NUM_CLUSTERS) + '_benchmarks.txt', 'w') as file:
-        svc_bench_unclustered = run_benchmark(
-            'svc',
-            default_song_data,
-            default_training_data,
-            default_validation_data)
-        svc_bench_clustered = run_benchmark(
-            'svc',
-            default_song_data,
-            clustered_training_data,
-            clustered_validation_data)
-        result = 'svc accs:\t' + \
-            str(svc_bench_unclustered) + '\t' + str(svc_bench_clustered)
-        file.write(result)
-        print(result)
-        lsvc_bench_unclustered = run_benchmark(
-            'lsvc',
-            default_song_data,
-            default_training_data,
-            default_validation_data)
-        lsvc_bench_clustered = run_benchmark(
-            'lsvc',
-            default_song_data,
-            clustered_training_data,
-            clustered_validation_data)
-        result = 'lsvc accs:\t' + \
-            str(lsvc_bench_unclustered) + '\t' + str(lsvc_bench_clustered)
-        file.write(result)
-        print(result)
-        sgd_bench_unclustered = run_benchmark(
-            'sgd',
-            default_song_data,
-            default_training_data,
-            default_validation_data)
-        sgd_bench_clustered = run_benchmark(
-            'sgd',
-            default_song_data,
-            clustered_training_data,
-            clustered_validation_data)
-        result = 'sgd accs:\t' + \
-            str(sgd_bench_unclustered) + '\t' + str(sgd_bench_clustered)
-        file.write(result)
-        print(result)
+
+    results = {}
+
+    svc_bench_unclustered, svc_bench_unclustered_clf = run_benchmark(
+        'svc',
+        default_song_data,
+        default_training_data,
+        default_validation_data)
+    # print(svc_bench_unclustered)
+    results['svc_unclustured'] = svc_bench_unclustered, svc_bench_unclustered_clf
+
+    svc_bench_clustered, svc_bench_clustered_clf = run_benchmark(
+        'svc',
+        default_song_data,
+        clustered_training_data,
+        clustered_validation_data)
+    # print(svc_bench_clustered)
+    results['svc_clustured'] = svc_bench_clustered, svc_bench_clustered_clf
+
+    lsvc_bench_unclustered, lsvc_bench_unclustered_clf = run_benchmark(
+        'lsvc',
+        default_song_data,
+        default_training_data,
+        default_validation_data)
+    # print(lsvc_bench_unclustered)
+    results['lsvc_unclustured'] = lsvc_bench_unclustered, lsvc_bench_unclustered_clf
+
+    lsvc_bench_clustered, lsvc_bench_clustered_clf = run_benchmark(
+        'lsvc',
+        default_song_data,
+        clustered_training_data,
+        clustered_validation_data)
+    # print(lsvc_bench_clustered)
+    results['lsvc_clustured'] = lsvc_bench_clustered, lsvc_bench_clustered_clf
+
+    sgd_bench_unclustered, sgd_bench_unclustered_clf = run_benchmark(
+        'sgd',
+        default_song_data,
+        default_training_data,
+        default_validation_data)
+    # print(sgd_bench_unclustered)
+    results['sgd_unclustured'] = sgd_bench_unclustered, sgd_bench_unclustered_clf
+
+    sgd_bench_clustered, sgd_bench_clustered_clf = run_benchmark(
+        'sgd',
+        default_song_data,
+        clustered_training_data,
+        clustered_validation_data)
+    # print(sgd_bench_clustered)
+    results['sgd_clustured'] = sgd_bench_clustered, sgd_bench_clustered_clf
+
+    final_classifier = max(results, key=lambda key: results[key][0])
+    # print(final_classifier, '== best classifier')
+    return results[final_classifier][1]

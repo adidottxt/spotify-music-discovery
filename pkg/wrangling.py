@@ -16,7 +16,7 @@ from tqdm import tqdm_notebook  # pylint: disable=import-error
 from .constants import FLOAT_FEATURE_LIST, SCALABLE_VALUES
 
 
-def read_data(file):  # pylint: disable=too-many-statements
+def read_data(file, labeled):  # pylint: disable=too-many-statements
     '''
     description
 
@@ -47,6 +47,7 @@ def read_data(file):  # pylint: disable=too-many-statements
 
             metadata['artist_id'] = song['artist_id']
             metadata['artist_name'] = song['artist_name']
+            metadata['track_name'] = song['track_name']
 
             # check if genre field has multiple genres or just one
             if song['artist_genres']:
@@ -66,7 +67,8 @@ def read_data(file):  # pylint: disable=too-many-statements
             data['metadata'] = metadata
             data['features'] = features
             data['genres'] = genres
-            data['label'] = int(song['label'])
+            if (labeled):
+                data['label'] = int(song['label'])
 
             # add data to songs by track_id
             songs[track_id] = data

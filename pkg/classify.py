@@ -32,7 +32,7 @@ def classify_playlist(playlist_name, classifier):
         encoding='utf-8')
 
     playlist_data_dict = FrozenMap(
-        read_data('data/{}.csv'.format(playlist_name)))
+        read_data('data/{}.csv'.format(playlist_name), False))
     playlist_features, playlist_song_ids = get_features_and_id(
         playlist_data_dict)
 
@@ -48,10 +48,10 @@ def classify_playlist(playlist_name, classifier):
             the given playlist.")
         return
 
-    print("The given classifier thinks you'd like the following from the \
-          given playlist:\n")
+    print("The given classifier thinks you'd like the following from the given playlist:\n")
 
     for song in liked_songs:
-        print(playlist_data_dict[song]['track_name'])
+        print(playlist_data_dict[song]['metadata']['track_name'])
 
+    print()
     return

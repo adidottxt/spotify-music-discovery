@@ -53,6 +53,10 @@ def get_playlist_data(spotipy_object, username, playlists, playlist_name):
         if playlist['name'] == playlist_name:
             playlist_id = playlist['id']
 
+    if not playlist_id:
+        print("playlist not found!")
+        return None
+
     playlist_data = spotipy_object.user_playlist(
         username,
         playlist_id,

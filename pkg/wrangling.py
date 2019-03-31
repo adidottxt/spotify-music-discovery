@@ -293,3 +293,14 @@ def scale_data(data):
     sclr = MinMaxScaler()
     new_df[SCALABLE_VALUES] = sclr.fit_transform(new_df[SCALABLE_VALUES])
     return new_df
+
+def sanity_check(data):
+    '''
+    check likes + dislikes
+    '''
+    likes, dislikes = 0, 0
+    for data_value in data.values():
+        if data_value['label'] == 1:
+            likes += 1
+        else: dislikes += 1
+    print(' likes:', likes, '\n', 'dislikes:', dislikes)

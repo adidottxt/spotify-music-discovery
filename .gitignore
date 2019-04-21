@@ -6,3 +6,8 @@ config.py
 .cache*
 .ipynb_checkpoints
 test.csv
+.vscode
+
+# output folders
+classifiers/
+data/

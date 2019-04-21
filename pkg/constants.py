@@ -10,6 +10,8 @@ NUM_CLUSTERS = 4
 LABEL_LIST = ['Unclustered', 'Clustered']
 LIKE = 1
 DISLIKE = 0
+CLF_DIR = './classifiers'
+DATA_DIR ='./data'
 
 SCALABLE_VALUES = [
     'duration_ms',

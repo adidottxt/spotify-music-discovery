@@ -40,30 +40,25 @@ def login_to_spotify(username, client_id, client_secret):
 
     return spotify
 
-
-def get_playlist_data(spotipy_object, username, playlists, playlist_name):
+def get_playlist_data(spotipy_object, user_id, playlist_id):
     '''
-    This function takes in a user's playlists and a playlist name,
-    and downloads all song information for the given playlist name.
+    Downloads song data for all songs in the playlist associated with the given
+    user_id and playlist_id.
+    playlist_id can be a Spotify playlist URI or just the Spotify playlist id.
+    Returns (song_data, playlist_name)
     '''
 
-    for playlist in tqdm_notebook(
-            playlists['items'],
-            desc='Finding playlist "{}"...'.format(playlist_name)):
-        if playlist['name'] == playlist_name:
-            playlist_id = playlist['id']
+    # if the user passed in a URI, extract the playlist id
+    if (':' in playlist_id): playlist_id = playlist_id.split(':')[-1]
 
-    if not playlist_id:
-        print("playlist not found!")
+    playlist_data = spotipy_object.user_playlist(user_id, playlist_id)
+
+    if not playlist_data:
+        print('playlist not found!')
         return None
 
-    playlist_data = spotipy_object.user_playlist(
-        username,
-        playlist_id,
-    )
-
-    playlist_tracks = playlist_data["tracks"]
-    playlist_songs = playlist_tracks["items"]
+    playlist_tracks = playlist_data['tracks']
+    playlist_songs = playlist_tracks['items']
 
     while playlist_tracks['next']:
 
@@ -71,8 +66,7 @@ def get_playlist_data(spotipy_object, username, playlists, playlist_name):
         for item in playlist_tracks['items']:
             playlist_songs.append(item)
 
-    return playlist_songs
-
+    return playlist_songs, playlist_data['name']
 
 def get_dataframe(spotipy_object, playlist_data, label):
     '''
@@ -106,7 +100,7 @@ def get_dataframe(spotipy_object, playlist_data, label):
     artist_popularity = {}
     artist_followers = {}
 
-    for record in tqdm_notebook(track_ids, desc="Parsing artist data..."):
+    for record in tqdm_notebook(track_ids, desc='Parsing artist data...'):
 
         artist_id = spotipy_object.track(record)['artists'][0]['id']
         artist_info = spotipy_object.artist(artist_id)
@@ -157,7 +151,7 @@ def get_dataframe(spotipy_object, playlist_data, label):
     for i in tqdm_notebook(
             range(
                 len(track_ids)),
-            desc="Building final dataframe..."):
+            desc='Building final dataframe...'):
 
         track_id = track_ids[i]
         track_name = track_names[track_id]

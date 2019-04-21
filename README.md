@@ -8,4 +8,6 @@ with the following information from [Spotify](https://developer.spotify.com/docu
 CLIENT_ID = 'your client id here'
 CLIENT_SECRET = 'your client secret here'
 CLIENT_USERNAME = 'your Spotify username here'
+LIKES_PLAYLIST = 'your "likes" playlist here' # (i.e. positive examples)
+DISLIKES_PLAYLIST = 'your "dislikes" playlist here' # (i.e. negative examples)
 ```

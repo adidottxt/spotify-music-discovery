@@ -24,12 +24,12 @@ your
 - Start Jupyter Notebook in the `/spotify-music-discovery` directory.
 - Run through the notebooks in sequence, following the instructions in each:
   1. `get_spotify_data`
-    - Downloads and parses song data from the training playlists you specify
+      - Downloads and parses song data from the training playlists you specify
   2. `train`
-    - Trains classifiers using the training data and saves the best one.
-      - Specifically, it pickles the classifier object and writes it to disk.
+      - Trains classifiers using the training data and saves the best one.
+        - Specifically, it pickles the classifier object and writes it to the `./classifiers` directory.
   3. `predict`
-    - Predicts which songs you like from a playlist you specify.
+      - Predicts which songs you like from a playlist you specify.
 
 ### Spotify URIs
 

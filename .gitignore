@@ -1,13 +1,16 @@
+# jupyter, misc
 venv/
 .mypy_cache/
 __pycache__/
 .DS_Store
-config.py
 .cache*
 .ipynb_checkpoints
-test.csv
+test*
 .vscode
 
 # output folders
 classifiers/
 data/
+
+# FILES CONTAINING PRIVATE DATA
+config.py

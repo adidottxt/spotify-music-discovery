@@ -6,7 +6,7 @@ Jupyter Notebook, and a Spotify account.
 ## Setup
 
 1. Clone/download the repository.
-2. Ensure that you have [Python 3)[https://www.python.org/downloads/] and 
+2. Ensure that you have [Python 3](https://www.python.org/downloads/) and 
 [Jupyter Notebook](https://jupyter.org/install) installed.
 3. Navigate to `/spotify-music-discovery` and run `pip install -r requirements.txt`.
 4. Create the file `spotify-music-discovery/pkg/config.py` as below, using 

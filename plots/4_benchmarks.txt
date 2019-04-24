@@ -1,1 +1,0 @@
-svc accs (unclustered + clustered):	0.8799298860648553	0.8799298860648553lsvc accs (unclustured + clustered):	0.8773006134969326	0.8773006134969326sgd accs (unclustered + clustered):	0.8834355828220859	0.7773882559158632

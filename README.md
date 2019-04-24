@@ -1,4 +1,4 @@
-# spotify-music-discovery
+# 🎧 Spotify Music Discovery
 
 Create your own Spotify recommendation algorithm. All you need is Python 3, 
 Jupyter Notebook, and a Spotify account. 
@@ -10,9 +10,7 @@ Jupyter Notebook, and a Spotify account.
 [Jupyter Notebook](https://jupyter.org/install) installed.
 3. Navigate to `/spotify-music-discovery` and run `pip install -r requirements.txt`.
 4. Create the file `spotify-music-discovery/pkg/config.py` as below, using 
-your 
-[Spotify client information](https://developer.spotify.com/documentation/general/guides/app-settings/#register-your-app).
-  `config.py`
+your [Spotify client information](https://developer.spotify.com/documentation/general/guides/app-settings/#register-your-app).
   ```python
   CLIENT_ID = 'your Spotify client id here'
   CLIENT_SECRET = 'your Spotify client secret here'

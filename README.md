@@ -16,6 +16,11 @@ your [Spotify client information](https://developer.spotify.com/documentation/ge
   CLIENT_SECRET = 'your Spotify client secret here'
   CLIENT_USERNAME = 'your Spotify username here'
   ```
+5. To help avoid any OAuth errors that might occur, open your Spotify 
+application [here](https://developer.spotify.com/dashboard/applications), and 
+set up your Redirect URIs as follows:
+  - `Edit Settings`
+    - Add `http://localhost:8888/callback/` under "Redirect URIs"
 
 ## Usage
 
@@ -29,7 +34,7 @@ your [Spotify client information](https://developer.spotify.com/documentation/ge
   3. `predict`
       - Predicts which songs you like from a playlist you specify.
 
-### Spotify URIs
+#### Spotify URIs
 
 To download playlists, you will have to specify their Spotify URIs. You can get 
 Spotify URIs from the Spotify app, as follows:

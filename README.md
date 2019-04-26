@@ -22,6 +22,11 @@ set up your Redirect URIs as follows:
   - `Edit Settings`
     - Add `http://localhost:8888/callback/` under "Redirect URIs"
 
+6. When prompted in `get_spotify_data`, copy and paste the link you are 
+redirected to in the input box that should pop up after running the first 
+cell (even if the link throws a "localhost redirected you too many times" 
+error).
+
 ## Usage
 
 - Start Jupyter Notebook in the `/spotify-music-discovery` directory.
